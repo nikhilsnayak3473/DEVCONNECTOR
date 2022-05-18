@@ -1,12 +1,27 @@
 const express = require('express');
-const req = require('express/lib/request');
 const router = express.Router();
+const { check, validationResult } = require('express-validator');
 
 // @route   GET api/users
-// desc     Test route
+// desc     Register user
 // @access  Public
-router.get('/', (req, res) => {
-  res.send('user route');
-});
+router.post(
+  '/',
+  [
+    check('name', 'Name is required').not().isEmpty(),
+    check('email', 'Please Enter a Vaild Email').isEmail(),
+    check(
+      'password',
+      'Please enter a password with 8 or more Characters'
+    ).isLength({ min: 8 }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    res.send('user route');
+  }
+);
 
 module.exports = router;
